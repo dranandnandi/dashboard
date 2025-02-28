@@ -3,137 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARS Gastro & Liver | Dr. Abhijeet Ranjan - Rate Us</title>
+    <title>Chatbot with Ratings</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
-        }
-        h1 {
-            color: #202124;
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-        }
-        .google-logo {
-            width: 120px;
-            margin-bottom: 20px;
-        }
-        .rating {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .star {
-            font-size: 2rem;
-            cursor: pointer;
-            color: gray;
-        }
-        .star:hover,
-        .star.selected {
-            color: gold;
-        }
-        .feedback-section {
-            display: none;
-            margin-top: 20px;
-        }
-        textarea {
-            width: 80%;
-            height: 100px;
-            margin-top: 10px;
-            padding: 10px;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .thank-you {
-            color: green;
-            font-weight: bold;
-            margin-top: 20px;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .chatbox { width: 300px; margin: 0 auto; }
+        .messages { border: 1px solid #ccc; padding: 10px; height: 200px; overflow-y: scroll; }
+        .input { margin-top: 10px; }
+        .rating-container { margin-top: 20px; }
+        .star { font-size: 30px; cursor: pointer; color: gray; }
+        .selected { color: gold; }
     </style>
 </head>
 <body>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google Logo" class="google-logo">
-    <h1>ARS Gastro & Liver | Dr. Abhijeet Ranjan</h1>
-    <p>Please rate your experience with us!</p>
-    <div class="rating" id="rating">
-        <span class="star" data-value="1">★</span>
-        <span class="star" data-value="2">★</span>
-        <span class="star" data-value="3">★</span>
-        <span class="star" data-value="4">★</span>
-        <span class="star" data-value="5">★</span>
-    </div>
-    <p id="message"></p>
 
-    <!-- Feedback Section -->
-    <div class="feedback-section" id="feedback-section">
-        <h3>We Value Your Feedback</h3>
-        <textarea id="review-text" placeholder="Write your feedback here..."></textarea><br>
-        <button id="submit-button">OK</button>
+    <h2>Chatbot</h2>
+    <div class="chatbox">
+        <div class="messages" id="messages"></div>
+        <div class="input">
+            <input type="text" id="messageInput" placeholder="Type your message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
     </div>
 
-    <p id="thank-you-message" class="thank-you"></p>
+    <h3>Rate Your Experience</h3>
+    <div class="rating-container">
+        <span class="star" onclick="submitRating(1)">★</span>
+        <span class="star" onclick="submitRating(2)">★</span>
+        <span class="star" onclick="submitRating(3)">★</span>
+        <span class="star" onclick="submitRating(4)">★</span>
+        <span class="star" onclick="submitRating(5)">★</span>
+    </div>
 
     <script>
-        const stars = document.querySelectorAll('.star');
-        const message = document.getElementById('message');
-        const feedbackSection = document.getElementById('feedback-section');
-        const reviewText = document.getElementById('review-text');
-        const submitButton = document.getElementById('submit-button');
-        const thankYouMessage = document.getElementById('thank-you-message');
-        const gmbReviewLink = "https://g.page/r/CVULwVwYCwhWEBM/review"; // Replace with your actual GMB review link
-        let selectedRating = 0;
+        const GMB_LINK = "https://g.page/your-business-url/review"; // Replace with your actual GMB review link
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec"; // Replace with your Google Apps Script URL
 
-        // Handle star rating selection
-        stars.forEach(star => {
-            star.addEventListener('click', () => {
-                selectedRating = parseInt(star.getAttribute('data-value'));
+        async function submitRating(rating) {
+            console.log("Rating Submitted:", rating);
 
-                // Highlight selected stars
-                stars.forEach(s => s.classList.remove('selected'));
-                for (let i = 0; i < selectedRating; i++) {
-                    stars[i].classList.add('selected');
-                }
-
-                // Update behavior based on the rating
-                if (selectedRating >= 4) {
-                    // Redirect to Google review page for 4 or 5 stars
-                    window.location.href = gmbReviewLink;
-                } else {
-                    // Show feedback section for 3 or fewer stars
-                    feedbackSection.style.display = 'block';
-                    message.textContent = "We're sorry to hear that! Please let us know how we can improve.";
-                }
-            });
-        });
-
-        // Handle "OK" button click
-        submitButton.addEventListener('click', () => {
-            const feedback = reviewText.value.trim();
-
-            if (feedback) {
-                thankYouMessage.textContent = "Thank you for your feedback! We’ll work to improve.";
-                feedbackSection.style.display = 'none';
-                reviewText.value = ''; // Clear feedback box
-            } else {
-                alert("Please provide feedback before submitting.");
+            // Send rating to Google Sheets
+            try {
+                await axios.post(GOOGLE_SHEET_URL, { rating: rating });
+                alert("Thank you for your feedback!");
+            } catch (error) {
+                console.error("Error submitting rating:", error);
+                alert("Failed to submit rating. Please try again.");
             }
+
+            // Redirect if rating is 4 or more
+            if (rating >= 4) {
+                window.location.href = GMB_LINK;
+            }
+        }
+
+        function highlightStars(rating) {
+            document.querySelectorAll('.star').forEach((star, index) => {
+                star.classList.toggle('selected', index < rating);
+            });
+        }
+
+        document.querySelectorAll('.star').forEach((star, index) => {
+            star.addEventListener('mouseover', () => highlightStars(index + 1));
+            star.addEventListener('mouseout', () => highlightStars(0));
         });
     </script>
+
 </body>
 </html>
