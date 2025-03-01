@@ -60,10 +60,7 @@
             alert("Failed to submit rating. Server responded with an error.");
         }
 
-    } catch (error) {
-        console.error("Error submitting rating:", error.message);
-        alert("Failed to submit rating due to CORS error. Please try again.");
-    }
+  
 
     if (rating >= 4) {
         window.location.href = "https://g.page/r/CVULwVwYCwhWEBM/review";
