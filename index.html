@@ -28,45 +28,88 @@
 
     <h3>Rate Your Experience</h3>
     <div class="rating-container">
-        <span class="star" onclick="submitRating(1)">★</span>
-        <span class="star" onclick="submitRating(2)">★</span>
-        <span class="star" onclick="submitRating(3)">★</span>
-        <span class="star" onclick="submitRating(4)">★</span>
-        <span class="star" onclick="submitRating(5)">★</span>
+        <span class="star" data-value="1" onclick="submitRating(1)">★</span>
+        <span class="star" data-value="2" onclick="submitRating(2)">★</span>
+        <span class="star" data-value="3" onclick="submitRating(3)">★</span>
+        <span class="star" data-value="4" onclick="submitRating(4)">★</span>
+        <span class="star" data-value="5" onclick="submitRating(5)">★</span>
     </div>
 
     <script>
-        const GMB_LINK = "https://g.page/r/CVULwVwYCwhWEBM/review"; // Replace with your actual GMB review link
-        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbycB4f0fRmE0-kf6OoZhJ4ER3K90zcHcvWPjfxfowuKJ-pZMYEmQnmf10Hx5kP3svZFfA/exec"; // Replace with your Google Apps Script URL
+        // Define URLs for GMB and Google Apps Script
+        const GMB_LINK = "https://g.page/r/CVULwVwYCwhWEBM/review"; // GMB review link
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbycB4f0fRmE0-kf6OoZhJ4ER3K90zcHcvWPjfxfowuKJ-pZMYEmQnmf10Hx5kP3svZFfA/exec"; // Google Apps Script URL
 
+        // Function to handle sending a rating
         async function submitRating(rating) {
             console.log("Rating Submitted:", rating);
 
-            // Send rating to Google Sheets
+            // Send rating to Google Sheets with proper CORS headers
             try {
-                await axios.post(GOOGLE_SHEET_URL, { rating: rating });
+                await axios.post(GOOGLE_SHEET_URL, 
+                    { rating: rating }, 
+                    {
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Access-Control-Allow-Origin": "*"
+                        }
+                    }
+                );
                 alert("Thank you for your feedback!");
             } catch (error) {
                 console.error("Error submitting rating:", error);
                 alert("Failed to submit rating. Please try again.");
             }
 
-            // Redirect if rating is 4 or more
+            // Redirect to GMB link if rating is 4 or more
             if (rating >= 4) {
                 window.location.href = GMB_LINK;
             }
         }
 
+        // Function to handle chat messages
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const messages = document.getElementById('messages');
+            const userMessage = messageInput.value.trim();
+
+            if (!userMessage) return; // Prevent empty messages
+
+            // Add user message to chat
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.textContent = `You: ${userMessage}`;
+            messages.appendChild(userMessageDiv);
+
+            // Example static bot response (Replace with dynamic fetch if needed)
+            const botResponse = "Thank you for your message!";
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.textContent = `Bot: ${botResponse}`;
+            messages.appendChild(botMessageDiv);
+
+            messageInput.value = '';
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        // Highlight stars on hover and selection
         function highlightStars(rating) {
             document.querySelectorAll('.star').forEach((star, index) => {
                 star.classList.toggle('selected', index < rating);
             });
         }
 
+        // Attach event listeners for star ratings
         document.querySelectorAll('.star').forEach((star, index) => {
             star.addEventListener('mouseover', () => highlightStars(index + 1));
             star.addEventListener('mouseout', () => highlightStars(0));
         });
+
+        // Initial bot welcome message
+        window.onload = () => {
+            const messages = document.getElementById('messages');
+            const welcomeMessage = document.createElement('div');
+            welcomeMessage.textContent = "Bot: Welcome to our chatbot!";
+            messages.appendChild(welcomeMessage);
+        };
     </script>
 
 </body>
