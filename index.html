@@ -41,15 +41,15 @@
         const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxkvgwODDZ7m_NhQ-FxgL65kxC7shBKre0NUlegapKOV3S9_PNB6qE5OrbCg8XsjYXPnQ/exec"; // Google Apps Script URL
 
         // Function to handle sending a rating
-       async function submitRating(rating) {
+   async function submitRating(rating) {
     console.log("Rating Submitted:", rating);
 
     try {
-        const response = await axios.post(GOOGLE_SHEET_URL, 
-            { rating: rating },
+        const response = await axios.post("https://script.google.com/macros/s/AKfycbxkvgwODDZ7m_NhQ-FxgL65kxC7shBKre0NUlegapKOV3S9_PNB6qE5OrbCg8XsjYXPnQ/exec", 
+            { rating: rating }, 
             {
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
+                    "Content-Type": "application/json"
                 }
             }
         );
@@ -63,12 +63,12 @@
         }
 
     } catch (error) {
-        console.error("Error submitting rating:", error);
-        alert("Failed to submit rating. Please try again.");
+        console.error("CORS Error submitting rating:", error);
+        alert("Failed to submit rating due to CORS error. Please try again.");
     }
 
     if (rating >= 4) {
-        window.location.href = GMB_LINK;
+        window.location.href = "https://g.page/r/CVULwVwYCwhWEBM/review";
     }
 }
 
