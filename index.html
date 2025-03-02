@@ -36,46 +36,50 @@
     </div>
 
     <script>
-        const GMB_LINK = "https://g.page/r/CVULwVwYCwhWEBM/review"; 
-        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxbrKE0aQX-cMXcZOT70KZC2pBrYu4Z3n0SUwPH37FLRfmFl9KnUVn5JaemcDSOUM9BcQ/exec"; 
+        const SHEET_ID = "1jOBrIkBANEOA4ju0NFDW07GmRHTKgxeISRn3ZhuZVHg"; // Your Google Sheet ID
+        const API_KEY = "AIzaSyCRGFtW17EKecdR48OnUwjPqnL-So3QJlA"; // Your Google Sheets API Key
+        const SHEET_NAME = "Ratings"; // Name of the sheet in your Google Sheet
 
-       async function submitRating(rating) {
-    console.log("Rating Submitted:", rating);
+        async function submitRating(rating) {
+            console.log("Rating Submitted:", rating);
 
-    try {
-        const response = await axios.post("https://script.google.com/macros/s/AKfycbxkvgwODDZ7m_NhQ-FxgL65kxC7shBKre0NUlegapKOV3S9_PNB6qE5OrbCg8XsjYXPnQ/exec", 
-            { rating: rating }, 
-            {
-                headers: {
-                    "Content-Type": "application/json"
+            // Get the current timestamp
+            const timestamp = new Date().toISOString();
+
+            // Prepare the data to send to Google Sheets
+            const data = {
+                values: [[timestamp, rating]],
+            };
+
+            // Google Sheets API URL
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}!A1:append?valueInputOption=RAW&key=${API_KEY}`;
+
+            try {
+                const response = await axios.post(url, data, {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                console.log("Response from Google Sheets API:", response.data);
+
+                if (response.data.updates.updatedRows === 1) {
+                    alert("Thank you for your feedback!");
+                } else {
+                    alert("Failed to submit rating. Please try again.");
                 }
+            } catch (error) {
+                console.error("Error submitting rating:", error);
+                alert("An error occurred while submitting the rating.");
             }
-        );
-
-        console.log("Response from Server:", response.data);
-
-        if (response.data.status === "success") {
-            alert("Thank you for your feedback!");
-        } else {
-            alert("Failed to submit rating. Server responded with an error.");
         }
-
-    } catch (error) {
-        console.error("Error submitting rating:", error.message);
-        alert("Failed to submit rating. Please try again.");
-    }
-
-    if (rating >= 4) {
-        window.location.href = "https://g.page/r/CVULwVwYCwhWEBM/review";
-    }
-}
 
         function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const messages = document.getElementById('messages');
             const userMessage = messageInput.value.trim();
 
-            if (!userMessage) return; 
+            if (!userMessage) return;
 
             const userMessageDiv = document.createElement('div');
             userMessageDiv.textContent = `You: ${userMessage}`;
