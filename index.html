@@ -39,36 +39,36 @@
         const GMB_LINK = "https://g.page/r/CVULwVwYCwhWEBM/review"; 
         const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw8PF_nyTT5J57j8YmrgwKZ_KR55QcRoYxtsc9qyUrIGwUD91485lNXgvQeYar5jeiPVQ/exec"; 
 
-        async function submitRating(rating) {
-            console.log("Rating Submitted:", rating);
+       async function submitRating(rating) {
+    console.log("Rating Submitted:", rating);
 
-            try {
-                const response = await axios.post(GOOGLE_SHEET_URL, 
-                    { rating: rating }, 
-                    {
-                        headers: {
-                            "Content-Type": "application/json"
-                        }
-                    }
-                );
-
-                console.log("Response from Server:", response.data);
-
-                if (response.data.status === "success") {
-                    alert("Thank you for your feedback!");
-
-                    // Redirect to GMB link if rating is 4 or 5
-                    if (rating >= 4) {
-                        window.location.href = GMB_LINK;
-                    }
-                } else {
-                    alert("Failed to submit rating. Server responded with an error.");
+    try {
+        const response = await axios.post("https://script.google.com/macros/s/AKfycbxkvgwODDZ7m_NhQ-FxgL65kxC7shBKre0NUlegapKOV3S9_PNB6qE5OrbCg8XsjYXPnQ/exec", 
+            { rating: rating }, 
+            {
+                headers: {
+                    "Content-Type": "application/json"
                 }
-            } catch (error) {
-                console.error("Error submitting rating:", error);
-                alert("An error occurred while submitting the rating.");
             }
+        );
+
+        console.log("Response from Server:", response.data);
+
+        if (response.data.status === "success") {
+            alert("Thank you for your feedback!");
+        } else {
+            alert("Failed to submit rating. Server responded with an error.");
         }
+
+    } catch (error) {
+        console.error("Error submitting rating:", error.message);
+        alert("Failed to submit rating. Please try again.");
+    }
+
+    if (rating >= 4) {
+        window.location.href = "https://g.page/r/CVULwVwYCwhWEBM/review";
+    }
+}
 
         function sendMessage() {
             const messageInput = document.getElementById('messageInput');
